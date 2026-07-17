@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import connectDB from "@/app/lib/mongodb";
 import Task from "@/app/lib/Task";
 import TaskBoard from "@/app/components/TaskBoard";
-
+export const dynamic = "force-dynamic";
 async function refreshTasks() {
   "use server";
   revalidatePath("/tasks");

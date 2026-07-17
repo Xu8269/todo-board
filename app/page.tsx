@@ -5,6 +5,8 @@ import FishTank from "@/app/components/FishTank";
 import Calendar from "@/app/components/Calendar";
 import ClearDoneButton from "@/app/components/ClearDoneButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   await connectDB();
   const [total, todo, doing, done, tasksWithDeadlines] = await Promise.all([
