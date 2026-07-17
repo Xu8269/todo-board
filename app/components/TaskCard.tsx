@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "@/app/lib/ThemeContext";
 import EditTaskModal from "./EditTaskModal";
 
 type Task = {
@@ -28,6 +29,7 @@ function isOverdue(task: Task) {
 }
 
 export default function TaskCard({ task, onRefresh }: { task: Task; onRefresh: () => void }) {
+  const { isDark, colors } = useTheme();
   const [loading, setLoading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -52,14 +54,14 @@ export default function TaskCard({ task, onRefresh }: { task: Task; onRefresh: (
   return (
     <>
       <div style={{
-        background: overdue ? "#fef2f2" : "#fff",
+        background: overdue ? (isDark ? "#450a0a" : "#fef2f2") : colors.card,
         borderRadius: 8, padding: 16,
-        borderLeft: `4px solid ${priorityColor[task.priority]}`,
+        borderLeft: `4px solid ${overdue ? "#ef4444" : priorityColor[task.priority]}`,
         boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-        outline: overdue ? "1px solid #fecaca" : "none",
+        outline: overdue ? `1px solid ${isDark ? "#7f1d1d" : "#fecaca"}` : "none",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 8 }}>
-          <strong>{task.title}</strong>
+          <strong style={{ color: colors.text }}>{task.title}</strong>
           <div style={{ display: "flex", gap: 6 }}>
             {overdue && (
               <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 12, background: "#ef4444", color: "#fff" }}>
@@ -73,12 +75,12 @@ export default function TaskCard({ task, onRefresh }: { task: Task; onRefresh: (
         </div>
 
         {task.content && (
-          <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 8px", lineHeight: 1.4, wordBreak: "break-word" }}>
+          <p style={{ fontSize: 14, color: colors.textSec, margin: "0 0 8px", lineHeight: 1.4, wordBreak: "break-word" }}>
             {task.content}
           </p>
         )}
 
-        <div style={{ fontSize: 12, color: overdue ? "#ef4444" : "#9ca3af", marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: overdue ? "#ef4444" : colors.textMuted, marginBottom: 12 }}>
           {task.deadline && <span>截止: {task.deadline.slice(0, 10)}</span>}
         </div>
 
@@ -88,8 +90,8 @@ export default function TaskCard({ task, onRefresh }: { task: Task; onRefresh: (
             disabled={loading}
             style={{
               flex: 1, padding: "6px 0", fontSize: 13,
-              background: task.status === "done" ? "#f3f4f6" : "#2563eb",
-              color: task.status === "done" ? "#374151" : "#fff",
+              background: task.status === "done" ? colors.border : "#2563eb",
+              color: task.status === "done" ? colors.text : "#fff",
               border: "none", borderRadius: 4, cursor: loading ? "not-allowed" : "pointer",
             }}
           >
@@ -99,7 +101,7 @@ export default function TaskCard({ task, onRefresh }: { task: Task; onRefresh: (
             onClick={() => setShowEdit(true)}
             style={{
               padding: "6px 12px", fontSize: 13,
-              background: "#e0f2fe", color: "#0369a1",
+              background: colors.border, color: colors.text,
               border: "none", borderRadius: 4, cursor: "pointer",
             }}
           >
@@ -129,18 +131,18 @@ export default function TaskCard({ task, onRefresh }: { task: Task; onRefresh: (
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: 12, padding: 28, width: 360,
+              background: colors.card, borderRadius: 12, padding: 28, width: 360,
               boxShadow: "0 4px 24px rgba(0,0,0,0.15)", textAlign: "center",
             }}
           >
-            <h3 style={{ margin: "0 0 8px" }}>确认删除</h3>
-            <p style={{ color: "#6b7280", margin: "0 0 20px" }}>确定要删除「{task.title}」吗？此操作不可撤销。</p>
+            <h3 style={{ margin: "0 0 8px", color: colors.text }}>确认删除</h3>
+            <p style={{ color: colors.textSec, margin: "0 0 20px" }}>确定要删除「{task.title}」吗？此操作不可撤销。</p>
             <div style={{ display: "flex", gap: 10 }}>
               <button
                 onClick={() => setConfirmDelete(false)}
                 style={{
-                  flex: 1, padding: "10px 0", background: "#f3f4f6", border: "none",
-                  borderRadius: 6, fontSize: 15, cursor: "pointer",
+                  flex: 1, padding: "10px 0", background: colors.border,
+                  border: "none", borderRadius: 6, fontSize: 15, cursor: "pointer", color: colors.text,
                 }}
               >
                 取消

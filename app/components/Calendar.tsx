@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "@/app/lib/ThemeContext";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -13,6 +14,7 @@ function getFirstDayOfMonth(year: number, month: number) {
 }
 
 export default function Calendar({ deadlineDates }: { deadlineDates: string[] }) {
+  const { isDark, colors } = useTheme();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -42,24 +44,21 @@ export default function Calendar({ deadlineDates }: { deadlineDates: string[] })
 
   return (
     <div style={{
-      background: "#fff", borderRadius: 10, padding: 16,
+      background: colors.card, borderRadius: 10, padding: 16,
       boxShadow: "0 1px 3px rgba(0,0,0,0.1)", width: 280,
     }}>
-      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <button onClick={prevMonth} style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: "#6b7280", padding: "4px 8px" }}>‹</button>
-        <div style={{ fontSize: 15, fontWeight: 600, color: "#374151" }}>{year}年{month + 1}月</div>
-        <button onClick={nextMonth} style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: "#6b7280", padding: "4px 8px" }}>›</button>
+        <button onClick={prevMonth} style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: colors.textSec, padding: "4px 8px" }}>‹</button>
+        <div style={{ fontSize: 15, fontWeight: 600, color: colors.text }}>{year}年{month + 1}月</div>
+        <button onClick={nextMonth} style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: colors.textSec, padding: "4px 8px" }}>›</button>
       </div>
 
-      {/* Weekday headers */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", marginBottom: 4 }}>
         {WEEKDAYS.map(w => (
-          <div key={w} style={{ fontSize: 12, color: "#9ca3af", padding: "4px 0" }}>{w}</div>
+          <div key={w} style={{ fontSize: 12, color: colors.textMuted, padding: "4px 0" }}>{w}</div>
         ))}
       </div>
 
-      {/* Days grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center" }}>
         {cells.map((day, i) => {
           if (day === null) return <div key={i} />;
@@ -72,8 +71,8 @@ export default function Calendar({ deadlineDates }: { deadlineDates: string[] })
               key={i}
               style={{
                 padding: "6px 0", fontSize: 13, borderRadius: 6,
-                background: hasDeadline ? "#fef3c7" : "transparent",
-                color: isToday ? "#2563eb" : hasDeadline ? "#92400e" : "#374151",
+                background: hasDeadline ? (isDark ? "#422006" : "#fef3c7") : "transparent",
+                color: isToday ? "#2563eb" : hasDeadline ? (isDark ? "#fbbf24" : "#92400e") : colors.text,
                 fontWeight: isToday ? 700 : hasDeadline ? 600 : 400,
                 outline: isToday ? "2px solid #2563eb" : "none",
                 outlineOffset: -2,

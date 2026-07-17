@@ -27,7 +27,7 @@ export default async function HomePage() {
   return (
     <div style={{ padding: 40, maxWidth: 1024, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, margin: 0 }}>仪表盘</h1>
+        <h1 style={{ fontSize: 24, margin: 0, color: "var(--text-primary)" }}>仪表盘</h1>
         <ClearDoneButton />
       </div>
 
@@ -41,8 +41,8 @@ export default async function HomePage() {
             { label: "进行中", value: stats.doing, color: "#f59e0b" },
             { label: "已完成", value: stats.done, color: "#10b981" },
           ].map((item) => (
-            <div key={item.label} style={{ background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-              <div style={{ fontSize: 14, color: "#6b7280" }}>{item.label}</div>
+            <div key={item.label} style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+              <div style={{ fontSize: 14, color: "var(--text-secondary)" }}>{item.label}</div>
               <div style={{ fontSize: 36, fontWeight: 700, color: item.color }}>{item.value}</div>
             </div>
           ))}
@@ -50,7 +50,7 @@ export default async function HomePage() {
       </div>
 
       {stats.total === 0 && (
-        <p style={{ color: "#6b7280", fontSize: 16, textAlign: "center", marginTop: 60 }}>
+        <p style={{ color: "var(--text-secondary)", fontSize: 16, textAlign: "center", marginTop: 60 }}>
           暂无任务，去
           <Link href="/tasks/new" style={{ color: "#2563eb", marginLeft: 4 }}>创建一个 →</Link>
         </p>

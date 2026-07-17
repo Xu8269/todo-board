@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTheme } from "@/app/lib/ThemeContext";
 
 type ReleasedFish = {
   _id: string;
@@ -31,6 +32,7 @@ function loadBitmap(url: string): Promise<ImageBitmap> {
 }
 
 export default function FishTank() {
+  const { colors } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
   const [fishList, setFishList] = useState<ReleasedFish[]>([]);
@@ -59,7 +61,7 @@ export default function FishTank() {
       const json = await res.json();
       if (json.code === 200) {
         const loaded: ReleasedFish[] = await Promise.all(
-          json.data.map(async (f:  { _id: string; name: string; drawing: string; weight: number; size: number; baseSize: number; ate: number }) => ({
+          json.data.map(async (f: { _id: string; name: string; drawing: string; weight: number; size: number; baseSize: number; ate: number }) => ({
             _id: f._id,
             name: f.name,
             texture: await loadBitmap(f.drawing),
@@ -161,7 +163,7 @@ export default function FishTank() {
     setFishList(prev => prev.filter(f => f._id !== id));
   }, []);
 
-  // Tank animation
+  // Tank animation (canvas drawing - stays as is)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -196,7 +198,6 @@ export default function FishTank() {
     const loop = (time: number) => {
       ctx.clearRect(0, 0, W, H);
 
-      // Water
       const grad = ctx.createLinearGradient(0, 0, 0, H);
       grad.addColorStop(0, "#e0f2fe");
       grad.addColorStop(0.4, "#bae6fd");
@@ -205,7 +206,6 @@ export default function FishTank() {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // Bubbles
       ctx.fillStyle = "rgba(255,255,255,0.12)";
       for (let i = 0; i < 8; i++) {
         const bx = 30 + Math.sin(time / 3000 + i * 3.7) * 25 + i * 35;
@@ -214,7 +214,6 @@ export default function FishTank() {
         ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
       }
 
-      // Light rays
       ctx.save();
       for (let i = 0; i < 5; i++) {
         const x = 50 + i * 150 + Math.sin(time / 6000 + i) * 30;
@@ -228,7 +227,6 @@ export default function FishTank() {
       }
       ctx.restore();
 
-      // Seaweed, rocks, sand
       for (const sw of seaweeds) {
         const sway = Math.sin(time / 2000 + sw.phase) * 6;
         ctx.beginPath();
@@ -245,7 +243,6 @@ export default function FishTank() {
         ctx.fillStyle = `rgba(180,140,100,${0.3 + Math.random() * 0.1})`; ctx.fill();
       }
 
-      // Fish
       const currentFish = fishListRef.current;
       for (const f of currentFish) {
         f.turnTimer--;
@@ -284,7 +281,6 @@ export default function FishTank() {
         f.x = Math.max(20, Math.min(W - 20, f.x));
         f.y = Math.max(20, Math.min(H - 20, f.y));
 
-        // Draw fish
         const angle = Math.atan2(f.vy, f.vx);
         const s = f.size;
         ctx.save();
@@ -296,7 +292,6 @@ export default function FishTank() {
         ctx.restore();
       }
 
-      // Food
       const foods = foodsRef.current;
       let ate = false;
       for (let i = foods.length - 1; i >= 0; i--) {
@@ -337,13 +332,13 @@ export default function FishTank() {
   return (
     <div style={{ marginTop: 32 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <h2 style={{ fontSize: 18, margin: 0, color: "#374151" }}>🐟 摸鱼</h2>
+        <h2 style={{ fontSize: 18, margin: 0, color: colors.text }}>🐟 摸鱼</h2>
         <button
           onClick={() => setShowDrawer(true)}
           disabled={fishList.length >= 3}
           style={{
             padding: "8px 20px", fontSize: 14,
-            background: fishList.length >= 3 ? "#d1d5db" : "#2563eb",
+            background: fishList.length >= 3 ? colors.border : "#2563eb",
             color: "#fff", border: "none", borderRadius: 6,
             cursor: fishList.length >= 3 ? "not-allowed" : "pointer",
           }}
@@ -352,7 +347,6 @@ export default function FishTank() {
         </button>
       </div>
 
-      {/* Drawing modal */}
       {showDrawer && (
         <div
           style={{
@@ -364,11 +358,11 @@ export default function FishTank() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "#fff", borderRadius: 12, padding: 24, width: 440,
+              background: colors.card, borderRadius: 12, padding: 24, width: 440,
               boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
             }}
           >
-            <h3 style={{ margin: "0 0 16px", fontSize: 16 }}>绘制你的鱼</h3>
+            <h3 style={{ margin: "0 0 16px", fontSize: 16, color: colors.text }}>绘制你的鱼</h3>
             <canvas
               ref={drawCanvasRef}
               width={400}
@@ -376,7 +370,7 @@ export default function FishTank() {
               style={{
                 width: "100%", height: 260, borderRadius: 8,
                 background: "#fffbe6", cursor: "crosshair",
-                border: "1px solid #d1d5db",
+                border: `1px solid ${colors.border}`,
               }}
               onMouseDown={startDraw}
               onMouseMove={draw}
@@ -385,40 +379,39 @@ export default function FishTank() {
             />
             <div style={{ display: "flex", gap: 16, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
               <div>
-                <label style={{ fontSize: 12, color: "#6b7280" }}>颜色</label>
+                <label style={{ fontSize: 12, color: colors.textSec }}>颜色</label>
                 <input type="color" value={color}
                   onChange={(e) => setColor(e.target.value)}
                   style={{ width: 36, height: 28, padding: 0, border: "none", cursor: "pointer", display: "block" }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, color: "#6b7280" }}>大小: {brushSize}px</label>
+                <label style={{ fontSize: 12, color: colors.textSec }}>大小: {brushSize}px</label>
                 <input type="range" min={2} max={20} value={brushSize}
                   onChange={(e) => setBrushSize(Number(e.target.value))}
                   style={{ width: 100, display: "block" }}
                 />
               </div>
               <button onClick={clearDraw} style={{
-                padding: "4px 14px", fontSize: 13, background: "#f3f4f6",
-                border: "1px solid #d1d5db", borderRadius: 4, cursor: "pointer",
+                padding: "4px 14px", fontSize: 13, background: colors.border,
+                border: `1px solid ${colors.border}`, borderRadius: 4, cursor: "pointer", color: colors.text,
               }}>清空</button>
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
               <input placeholder="给鱼取个名字..." value={name}
                 onChange={(e) => setName(e.target.value)}
-                style={{ flex: 1, padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 6, fontSize: 14 }}
+                style={{ flex: 1, padding: "8px 12px", border: `1px solid ${colors.border}`, borderRadius: 6, fontSize: 14, background: colors.inputBg, color: colors.text }}
               />
               <button onClick={releaseFish} style={{
                 padding: "8px 24px", background: "#2563eb", color: "#fff",
                 border: "none", borderRadius: 6, fontSize: 14, cursor: "pointer",
               }}>投放</button>
             </div>
-            <p style={{ fontSize: 12, color: "#9ca3af", margin: "8px 0 0" }}>鼠标绘制，命名后投放鱼缸</p>
+            <p style={{ fontSize: 12, color: colors.textMuted, margin: "8px 0 0" }}>鼠标绘制，命名后投放鱼缸</p>
           </div>
         </div>
       )}
 
-      {/* Tank + data panel */}
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
         <canvas
           ref={canvasRef}
@@ -431,22 +424,22 @@ export default function FishTank() {
           }}
         />
         <div style={{
-          background: "#fff", borderRadius: 10, padding: 16, minWidth: 180,
+          background: colors.card, borderRadius: 10, padding: 16, minWidth: 180,
           boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
         }}>
-          <h3 style={{ fontSize: 14, margin: "0 0 12px", color: "#374151" }}>鱼的数据</h3>
+          <h3 style={{ fontSize: 14, margin: "0 0 12px", color: colors.text }}>鱼的数据</h3>
           {displayFishData.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#9ca3af" }}>鱼缸是空的</p>
+            <p style={{ fontSize: 13, color: colors.textMuted }}>鱼缸是空的</p>
           ) : (
             displayFishData.map((f) => (
               <div key={f._id} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 marginBottom: 10, paddingBottom: 10,
-                borderBottom: "1px solid #f3f4f6",
+                borderBottom: `1px solid ${colors.border}`,
               }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: "#374151" }}>{f.name}</div>
-                  <div style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: colors.text }}>{f.name}</div>
+                  <div style={{ fontSize: 13, color: colors.textSec, marginTop: 2 }}>
                     体重: {f.weight}g
                   </div>
                 </div>
@@ -467,7 +460,7 @@ export default function FishTank() {
         </div>
       </div>
 
-      <p style={{ fontSize: 13, color: "#9ca3af", marginTop: 6 }}>
+      <p style={{ fontSize: 13, color: colors.textMuted, marginTop: 6 }}>
         点击鱼缸喂食
       </p>
     </div>

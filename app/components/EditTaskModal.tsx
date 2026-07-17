@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useTheme } from "@/app/lib/ThemeContext";
 
 type Task = {
   _id: string;
@@ -21,12 +22,12 @@ export default function EditTaskModal({
   onClose: () => void;
   onRefresh: () => void;
 }) {
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
     const form = new FormData(e.currentTarget);
     await fetch(`/api/tasks/${task._id}`, {
       method: "PATCH",
@@ -38,7 +39,6 @@ export default function EditTaskModal({
         deadline: form.get("deadline") || undefined,
       }),
     });
-
     setLoading(false);
     onClose();
     onRefresh();
@@ -56,34 +56,33 @@ export default function EditTaskModal({
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 12, padding: 28, width: 480,
+          background: colors.card, borderRadius: 12, padding: 28, width: 480,
           boxShadow: "0 4px 24px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column", gap: 14,
         }}
       >
-        <h3 style={{ margin: 0 }}>编辑任务</h3>
+        <h3 style={{ margin: 0, color: colors.text }}>编辑任务</h3>
 
         <div>
-          <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>标题</label>
+          <label style={{ display: "block", marginBottom: 4, fontWeight: 500, color: colors.text }}>标题</label>
           <input
             name="title" defaultValue={task.title} required
-            style={{ width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 6 }}
+            style={{ width: "100%", padding: "8px 12px", border: `1px solid ${colors.border}`, borderRadius: 6, background: colors.inputBg, color: colors.text }}
           />
         </div>
 
         <div>
-          <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>详情</label>
+          <label style={{ display: "block", marginBottom: 4, fontWeight: 500, color: colors.text }}>详情</label>
           <textarea
             name="content" defaultValue={task.content} rows={3}
-            style={{ width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 6, resize: "vertical" }}
+            style={{ width: "100%", padding: "8px 12px", border: `1px solid ${colors.border}`, borderRadius: 6, resize: "vertical", background: colors.inputBg, color: colors.text }}
           />
         </div>
 
         <div style={{ display: "flex", gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>优先级</label>
-            <select
-              name="priority" defaultValue={task.priority}
-              style={{ width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 6 }}
+            <label style={{ display: "block", marginBottom: 4, fontWeight: 500, color: colors.text }}>优先级</label>
+            <select name="priority" defaultValue={task.priority}
+              style={{ width: "100%", padding: "8px 12px", border: `1px solid ${colors.border}`, borderRadius: 6, background: colors.inputBg, color: colors.text }}
             >
               <option value="normal">普通</option>
               <option value="important">重要</option>
@@ -91,26 +90,23 @@ export default function EditTaskModal({
             </select>
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>截止日期</label>
-            <input
-              name="deadline" type="date" defaultValue={task.deadline?.slice(0, 10) || ""}
-              style={{ width: "100%", padding: "8px 12px", border: "1px solid #d1d5db", borderRadius: 6 }}
+            <label style={{ display: "block", marginBottom: 4, fontWeight: 500, color: colors.text }}>截止日期</label>
+            <input name="deadline" type="date" defaultValue={task.deadline?.slice(0, 10) || ""}
+              style={{ width: "100%", padding: "8px 12px", border: `1px solid ${colors.border}`, borderRadius: 6, background: colors.inputBg, color: colors.text }}
             />
           </div>
         </div>
 
         <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-          <button
-            type="button" onClick={onClose}
+          <button type="button" onClick={onClose}
             style={{
-              flex: 1, padding: "10px 0", background: "#f3f4f6", border: "none",
-              borderRadius: 6, fontSize: 15, cursor: "pointer",
+              flex: 1, padding: "10px 0", background: colors.border,
+              border: "none", borderRadius: 6, fontSize: 15, cursor: "pointer", color: colors.text,
             }}
           >
             取消
           </button>
-          <button
-            type="submit" disabled={loading}
+          <button type="submit" disabled={loading}
             style={{
               flex: 1, padding: "10px 0", background: loading ? "#93c5fd" : "#2563eb", color: "#fff",
               border: "none", borderRadius: 6, fontSize: 15, cursor: loading ? "not-allowed" : "pointer",
