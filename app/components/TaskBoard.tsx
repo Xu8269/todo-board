@@ -20,7 +20,18 @@ const statusConfig: Record<string, { label: string; bg: string; darkBg: string }
 };
 
 export default function TaskBoard({ taskList, refresh }: { taskList: Task[]; refresh: () => void }) {
-  const { isDark, colors } = useTheme();
+  const theme = useTheme();
+const isDark = theme.mounted ? theme.isDark : false;
+const colors = theme.mounted ? theme.colors : {
+  bg: "#f9fafb",
+  text: "#374151",
+  textSec: "#6b7280",
+  textMuted: "#9ca3af",
+  border: "#d1d5db",
+  card: "#ffffff",
+  header: "#ffffff",
+  inputBg: "#ffffff",
+};
   const columns = ["todo", "doing", "done"] as const;
 
   return (
